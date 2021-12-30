@@ -69,11 +69,12 @@ def carpredict():
     Seller_Type_Dealer=0
     Transmission_Automatic=0
     if request.method == 'POST':
-        Year = int(request.form['Year'])
-        Present_Price=float(request.form['Present_Price'])
-        Kms_Driven=int(request.form['Kms_Driven'])        
-        Owner=int(request.form['Owner'])
-        Fuel_Type_Petrol=request.form['Fuel_Type_Petrol']
+        car = request.get_json()
+        Year = int(car['Year'])
+        Present_Price=float(car['Present_Price'])
+        Kms_Driven=int(car['Kms_Driven'])        
+        Owner=int(car['Owner'])
+        Fuel_Type_Petrol=car['Fuel_Type_Petrol']
         if(Fuel_Type_Petrol=='Petrol'):
                 Fuel_Type_Petrol=1
                 Fuel_Type_Diesel=0
@@ -87,14 +88,14 @@ def carpredict():
             Fuel_Type_Diesel=0
             Fuel_Type_CNG=1
         Year=2020-Year
-        Seller_Type_Individual=request.form['Seller_Type_Individual']
+        Seller_Type_Individual=car['Seller_Type_Individual']
         if(Seller_Type_Individual=='Individual'):
             Seller_Type_Individual=1
             Seller_Type_Dealer=0
         else:
             Seller_Type_Individual=0
             Seller_Type_Dealer=1	
-        Transmission_Mannual=request.form['Transmission_Mannual']
+        Transmission_Mannual=car['Transmission_Mannual']
         if(Transmission_Mannual=='Mannual'):
             Transmission_Mannual=1
             Transmission_Automatic=0
