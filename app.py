@@ -1,12 +1,48 @@
-from flask import Flask, render_template, request
-import jsonify
 import requests
 import pickle
 import numpy as np
 import sklearn
+import jwt 
+import datetime
+import uuid
+import hashlib
+from flask import Flask, render_template, request, make_response, jsonify
 from sklearn.preprocessing import StandardScaler
+from functools import wraps
+
+
 app = Flask(__name__)
 model = pickle.load(open('random_forest_regression_model.pkl', 'rb'))
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = request.args.get('token') 
+
+        if not token:
+            return jsonify({'message' : 'Token is missing!'}), 403
+
+        try: 
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+        except Exception as e:
+            return jsonify({'message' : 'Token is invalid!'}), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
+
+@app.route('/gettoken')
+def gettoken():  
+    #auth = request.authorization
+
+    #if auth and auth.password == 'Applied@123456':  
+       app.config['SECRET_KEY'] = str(uuid.uuid4().hex)
+       unique_id = str(uuid.uuid4().hex)
+       token = jwt.encode({'user' : unique_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=5)}, app.config['SECRET_KEY'])
+       return jsonify({"token" : token.decode("utf-8")})
+
+    #return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+
 
 @app.route('/',methods=['GET'])
 def Home():
@@ -62,7 +98,12 @@ def predict():
     else:
         return render_template('index.html')
 
+
+
+
+
 @app.route("/carpredict", methods=['POST'])
+@token_required
 def carpredict():
     Fuel_Type_Diesel=0
     Fuel_Type_CNG=0
