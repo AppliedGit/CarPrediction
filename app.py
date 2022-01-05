@@ -38,7 +38,7 @@ def gettoken():
     #if auth and auth.password == 'Applied@123456':  
        app.config['SECRET_KEY'] = str(uuid.uuid4().hex)
        unique_id = str(uuid.uuid4().hex)
-       token = jwt.encode({'user' : unique_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=5)}, app.config['SECRET_KEY'])
+       token = jwt.encode({'user' : unique_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=60)}, app.config['SECRET_KEY'])
        return jsonify({"token" : token.decode("utf-8")})
 
     #return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
@@ -82,7 +82,7 @@ def predict():
             Seller_Type_Individual=0
             Seller_Type_Dealer=1	
         Transmission_Mannual=request.form['Transmission_Mannual']
-        if(Transmission_Mannual=='Mannual'):
+        if(Transmission_Mannual=='Manual'):
             Transmission_Mannual=1
             Transmission_Automatic=0
         else:
@@ -137,7 +137,7 @@ def carpredict():
             Seller_Type_Individual=0
             Seller_Type_Dealer=1	
         Transmission_Mannual=car['Transmission_Mannual']
-        if(Transmission_Mannual=='Mannual'):
+        if(Transmission_Mannual=='Manual'):
             Transmission_Mannual=1
             Transmission_Automatic=0
         else:
