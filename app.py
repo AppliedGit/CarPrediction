@@ -33,15 +33,24 @@ def token_required(f):
 
 @app.route('/gettoken')
 def gettoken():  
-    #auth = request.authorization
-
-    #if auth and auth.password == 'Applied@123456':  
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        return make_response('Could not verify', 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
+        
+    uname_hash = 'c7ad44cbad762a5da0a452f9e854fdc1e0e7a52a38015f23f3eab1d80b931dd472634dfac71cd34ebc35d16ab7fb8a90c81f975113d6c7538dc69dd8de9077ec'      
+    password_hash = '263d198e179108ea11ade755d21829b31eb6744f888c77b4bf704472eb70020eed618bbf2b43883484356a2a315b98f622bcdefdafc465e7aaba1a12cef2b0f6'       
+    auth_pwd = auth.password.encode('utf-8')
+    auth_password_hash = hashlib.sha512(auth_pwd).hexdigest() 
+    auth_uname = auth.username.encode('utf-8')
+    auth_uname_hash = hashlib.sha512(auth_uname).hexdigest()
+       
+    if auth and auth_uname_hash == uname_hash and auth_password_hash == password_hash:  
        app.config['SECRET_KEY'] = str(uuid.uuid4().hex)
        unique_id = str(uuid.uuid4().hex)
-       token = jwt.encode({'user' : unique_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(seconds=60)}, app.config['SECRET_KEY'])
+       token = jwt.encode({'user' : unique_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=60)}, app.config['SECRET_KEY'])
        return jsonify({"token" : token.decode("utf-8")})
 
-    #return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
+    return make_response('Could not verify!', 401, {'WWW-Authenticate' : 'Basic realm="Login Required"'})
 
 
 @app.route('/',methods=['GET'])
@@ -154,4 +163,3 @@ def carpredict():
 
 if __name__=="__main__":
     app.run(debug=True)
-
